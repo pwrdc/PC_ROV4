@@ -2,12 +2,13 @@ import time
 import inputs
 import Pyro4
 from inputs import get_gamepad
+import os
 
 fronts = ['ABS_RY', 'ABS_RX', 'ABS_X', 'ABS_Y']
 back = ['ABS_Z', 'ABS_RZ']
 buttons = ['BTN_TR', 'BTN_TL']
 whole = fronts+back+buttons
-
+YAW_COUNTER = 5
 
 class PadState(object):
     def __init__(self):
@@ -38,10 +39,10 @@ class PadState(object):
                             return self.dict
 
 
-roll_n_pitch = ['ABS_RY', 'ABS_RX']
-yaw_con = ['BTN_TR', 'BTN_TL']
-z_control = ['ABS_X', 'ABS_Y']
-acceleration = ['ABS_RZ', 'ABS_Z']
+roll_n_pitch = []
+yaw_con = ['ABS_RZ','ABS_Z']#BTN_TR BTN_TL
+z_control = ['ABS_RX', 'ABS_Y']
+acceleration = ['ABS_RY', 'ABS_X']
 all_controls = roll_n_pitch+yaw_con+z_control+acceleration
 
 
@@ -54,40 +55,67 @@ def main():
     if read_state == 1:
         print("No pad has been found!")
         read_state = False
-
+    number=0
+    front = 0
+    right = 0
+    up = 0
+    roll = 0
+    pitch = 0
+    yaw = 0
+    #yaw_counter=0
     while read_state:
-        front = 0
-        right = 0
-        up = 0
-        roll = 0
-        pitch = 0
-        yaw = 0
+        
 
         read_state = state.read()
         for item in read_state:
+            #check = {'ABS_RZ':0,'ABS_Z':0,'ABS_RX':0,'ABS_Y':0,'ABS_RY':0,'ABS_X':0}
             if item in yaw_con:
-                yaw = 100
+                yaw = read_state[item]
+                #check['ABS_RZ']=1
+                #check['ABS_Z']=1
                 if item == yaw_con[1]:
-                    yaw = -100
-            elif item in roll_n_pitch:
-                if item == roll_n_pitch[0]:
-                    roll = read_state[item]
-                else:
-                    pitch = read_state[item]
+                    yaw = -1*read_state[item]
+                    #yaw_counter=8
             elif item in acceleration:
+                #yaw_counter-=1
+                #if abs(yaw)>30:
+                    #yaw=0
                 if item == acceleration[0]:
+                    #check['ABS_RY']=1
                     front = read_state[item]
-                else:
-                    front = (-1)*read_state[item]
             elif item in z_control:
+                #yaw_counter-=1
+                #if abs(yaw)>30:
+                    #yaw=0
                 if item == z_control[1]:
+                    #check['ABS_Y']=1
                     up = read_state[item]
                 else:
+                    #check['ABS_RX']=1
                     right = read_state[item]
+
+            
+							
+				
 
         movement.set_lin_velocity(front, right, up)
         movement.set_ang_velocity(roll, pitch, yaw)
-        time.sleep(0.05)
+        #if yaw_counter<=0:
+        #    yaw=0
+        '''
+        os.system('cls')
+        print('Numer',number)
+        print('Front',front)
+        print('Right',right)
+        print('Up',up)
+        print('roll',roll)
+        print('pitch',pitch)
+        print('yaw',yaw)
+        '''
+        number+=1
+        if number%YAW_COUNTER==0:
+            yaw=0
+        time.sleep(0.0005)
     return
 
 
