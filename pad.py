@@ -47,9 +47,11 @@ all_controls = roll_n_pitch+yaw_con+z_control+acceleration
 
 
 def main():
-    uri = input("uri: ").strip()
-    movement = Pyro4.Proxy(uri)
-
+    try:
+		Pyro4.locatNS()
+		RPI = Pyro4.Proxy("PYRONAME:RPI_communication")
+	except Exception as err:
+		print (err)
     state = PadState()
     read_state = state.read()
     if read_state == 1:
@@ -98,8 +100,7 @@ def main():
 							
 				
 
-        movement.set_lin_velocity(front, right, up)
-        movement.set_ang_velocity(roll, pitch, yaw)
+        RPI.movements(front, right, up,yaw,roll,pitch)
         #if yaw_counter<=0:
         #    yaw=0
         '''
