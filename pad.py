@@ -48,10 +48,10 @@ all_controls = roll_n_pitch+yaw_con+z_control+acceleration
 
 def main():
     try:
-		Pyro4.locatNS()
-		RPI = Pyro4.Proxy("PYRONAME:RPI_communication")
-	except Exception as err:
-		print (err)
+        Pyro4.locateNS()
+        RPI = Pyro4.Proxy("PYRONAME:RPI_communication")
+    except Exception as err:
+        print (err)
     state = PadState()
     read_state = state.read()
     if read_state == 1:
