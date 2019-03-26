@@ -99,7 +99,10 @@ def main():
             
 							
 				
-
+        front = float(front/100)
+        right = float(right/100)
+        up = float(up/100)
+        yaw = float(yaw/100)
         RPI.movements(front, right, up,yaw,roll,pitch)
         #if yaw_counter<=0:
         #    yaw=0
