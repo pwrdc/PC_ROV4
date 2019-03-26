@@ -72,11 +72,11 @@ def main():
         for item in read_state:
             #check = {'ABS_RZ':0,'ABS_Z':0,'ABS_RX':0,'ABS_Y':0,'ABS_RY':0,'ABS_X':0}
             if item in yaw_con:
-                yaw = read_state[item]
+                yaw = read_state[item]/100
                 #check['ABS_RZ']=1
                 #check['ABS_Z']=1
                 if item == yaw_con[1]:
-                    yaw = -1*read_state[item]
+                    yaw = -0.01*read_state[item]
                     #yaw_counter=8
             elif item in acceleration:
                 #yaw_counter-=1
@@ -84,25 +84,22 @@ def main():
                     #yaw=0
                 if item == acceleration[0]:
                     #check['ABS_RY']=1
-                    front = read_state[item]
+                    front = read_state[item]/100
             elif item in z_control:
                 #yaw_counter-=1
                 #if abs(yaw)>30:
                     #yaw=0
                 if item == z_control[1]:
                     #check['ABS_Y']=1
-                    up = read_state[item]
+                    up = read_state[item]/100
                 else:
                     #check['ABS_RX']=1
-                    right = read_state[item]
+                    right = read_state[item]/100
 
             
 							
 				
-        front = float(front/100)
-        right = float(right/100)
-        up = float(up/100)
-        yaw = float(yaw/100)
+
         RPI.movements(front, right, up,yaw,roll,pitch)
         #if yaw_counter<=0:
         #    yaw=0
@@ -119,7 +116,7 @@ def main():
         number+=1
         if number%YAW_COUNTER==0:
             yaw=0
-        time.sleep(0.0005)
+        time.sleep(0.01)
     return
 
 
