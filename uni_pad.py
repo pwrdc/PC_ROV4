@@ -46,12 +46,7 @@ acceleration = ['ABS_RY', 'ABS_X']
 all_controls = roll_n_pitch+yaw_con+z_control+acceleration
 
 
-def main():
-    try:
-        Pyro4.locateNS()
-        RPI = Pyro4.Proxy("PYRONAME:RPI_communication")
-    except Exception as err:
-        print (err)
+def run(rpi_class_reference):
     state = PadState()
     read_state = state.read()
     if read_state == 1:
@@ -65,9 +60,8 @@ def main():
     pitch = 0
     yaw = 0
     #yaw_counter=0
+    print("I'm starting loop")
     while read_state:
-        
-
         read_state = state.read()
         for item in read_state:
             #check = {'ABS_RZ':0,'ABS_Z':0,'ABS_RX':0,'ABS_Y':0,'ABS_RY':0,'ABS_X':0}
@@ -100,7 +94,7 @@ def main():
 							
 				
 
-        RPI.movements(front, right, up,yaw,roll,pitch)
+        rpi_class_reference.movements(front, right, up,yaw,roll,pitch)
         #if yaw_counter<=0:
         #    yaw=0
         '''
@@ -121,4 +115,8 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    class VirtualRpi:
+        def movements(self, front, right, up, yaw, pitch, roll):
+            print(str(front)+" "+str(right)+" "+str(up)+" "+str(yaw)+" "+str(pitch)+" "+str(roll))
+    VIRTUAL_RPI = VirtualRpi()
+    run(VIRTUAL_RPI)
