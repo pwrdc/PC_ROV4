@@ -93,8 +93,7 @@ def run(rpi_class_reference):
             
 							
 				
-
-        rpi_class_reference.movements(front, right, up,yaw,roll,pitch)
+        rpi_class_reference.set_velocity(front, right, up, yaw, roll, pitch)
         #if yaw_counter<=0:
         #    yaw=0
         '''
@@ -110,13 +109,13 @@ def run(rpi_class_reference):
         number+=1
         if number%YAW_COUNTER==0:
             yaw=0
-        time.sleep(0.01)
+        #time.sleep(0.01)
     return
 
 
 if __name__ == "__main__":
     class VirtualRpi:
-        def movements(self, front, right, up, yaw, pitch, roll):
+        def set_velocity(self, front, right, up, yaw, pitch, roll):
             print(str(front)+" "+str(right)+" "+str(up)+" "+str(yaw)+" "+str(pitch)+" "+str(roll))
     VIRTUAL_RPI = VirtualRpi()
     run(VIRTUAL_RPI)
