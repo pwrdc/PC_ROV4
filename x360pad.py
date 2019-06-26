@@ -2,6 +2,7 @@ import time
 from collections import defaultdict
 from xbox360controller import Xbox360Controller
 import Pyro4
+from threading import Thread
 
 
 class X360controler:
@@ -58,11 +59,15 @@ class X360controler:
     """
 
     def __init__(self, rpi_reference):
+        self.RPI = rpi_reference
 
         self.buttonReactions = defaultdict(lambda: None, {'a':'b'})
+        #self.buttonReactions = {'Pressedbutton_a':self.RPI.pid_turn_on,
+        #                        'Pressedbutton_b':self.RPI.pid.turn_off,
+        #                        'Pressedbutton_y':self.RPI.pid_hold_depth}
 
         #buttonReactions= defaultdict(lambda: None,{'a':'b'})
-        self.RPI = rpi_reference
+        
     def sign(self, val):
         if val != 0:
             return val / abs(val)
@@ -81,60 +86,72 @@ class X360controler:
         self.buttons['A'] = True
         self.switches['A'] = not self.switches['A']
         print('A')
-        if self.buttonReactions['PressedButton_a'] != None:
-            self.buttonReactions['PressedButton_a']()
+        #if self.buttonReactions['PressedButton_a'] != None:
+        #    self.buttonReactions['PressedButton_a']()
 
     def _a(self):
         # button_a
         self.buttons['A'] = False
         print('_A')
-        if self.buttonReactions['Releasedbutton_a'] != None:
-            self.buttonReactions['Releasedbutton_a']()
+        #if self.buttonReactions['Releasedbutton_a'] != None:
+        #    self.buttonReactions['Releasedbutton_a']()
 
     def b(self):
         # button_b
         self.buttons['B'] = True
         self.switches['B'] = not self.switches['B']
         print('B')
-        if self.buttonReactions['PressedButton_b'] != None:
-            self.buttonReactions['PressedButton_b']()
+
+        self._run_in_thread(self.RPI.pid_turn_off)
+        print("PID turn off")
+
+        #if self.buttonReactions['PressedButton_b'] != None:
+        #    self.buttonReactions['PressedButton_b']()
 
     def _b(self):
         # button_b
         self.buttons['B'] = False
         print('_B')
-        if self.buttonReactions['Releasedbutton_b'] != None:
-            self.buttonReactions['Releasedbutton_b']()
+        #if self.buttonReactions['Releasedbutton_b'] != None:
+        #    self.buttonReactions['Releasedbutton_b']()
 
     def x(self):
         # button_x
         self.buttons['X'] = True
         self.switches['X'] = not self.switches['X']
         print('X')
-        if self.buttonReactions['PressedButton_x'] != None:
-            self.buttonReactions['PressedButton_x']()
+
+        self._run_in_thread(self.RPI.pid_turn_on)
+        print("PID turn on")
+
+        #if self.buttonReactions['PressedButton_x'] != None:
+        #    self.buttonReactions['PressedButton_x']()
 
     def _x(self):
         # button_x
         self.buttons['X'] = False
         print('_X')
-        if self.buttonReactions['Releasedbutton_x'] != None:
-            self.buttonReactions['Releasedbutton_x']()
+        #if self.buttonReactions['Releasedbutton_x'] != None:
+        #    self.buttonReactions['Releasedbutton_x']()
 
     def y(self):
         # button_y
         self.buttons['Y'] = True
         self.switches['Y'] = not self.switches['Y']
         print('Y')
-        if self.buttonReactions['PressedButton_y'] != None:
-            self.buttonReactions['PressedButton_y']()
+
+        self._run_in_thread(self.RPI.pid_hold_depth)
+        print("PID hold depth")
+
+        #if self.buttonReactions['PressedButton_y'] != None:
+        #    self.buttonReactions['PressedButton_y']()
 
     def _y(self):
         # button_y
         self.buttons['Y'] = False
         print('_Y')
-        if self.buttonReactions['Releasedbutton_y'] != None:
-            self.buttonReactions['Releasedbutton_y']()
+        #if self.buttonReactions['Releasedbutton_y'] != None:
+        #    self.buttonReactions['Releasedbutton_y']()
 
     def lb(self):
         # button_trigger_l
@@ -365,15 +382,25 @@ class X360controler:
             counter =0
             while self.run:
                 self.steering()
-                time.sleep(0.05)
+                time.sleep(0.005)
                 counter+=1
                 if counter==20:
                     counter=0
                     print(self.engines)
+
+                for e in self.engines:
+                    if e>50:
+                        e=-50
+                    if e<50:
+                        e =-50
                 try:
-                    self.RPI.movements(self.engines[0]/100, self.engines[1]/100, self.engines[2]/100,self.engines[3]/100, 0, 0)
+                    self.RPI.set_engine_driver_values(self.engines[0]/100, self.engines[1]/100, self.engines[2]/100,self.engines[3]/100, 0, 0)
                 except Exception:
                     pass
+
+    def _run_in_thread(self, func):
+        thread = Thread(target=func)
+        thread.start()
 
 if __name__ == '__main__':
     class VirtualRpi:
