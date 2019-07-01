@@ -1,6 +1,7 @@
 import Pyro4
 from x360pad import X360controler
 import uni_pad, automat
+import PyGame
 
 
 PAD_TYPE = 'x360' # 'x360' or 'uni'
@@ -21,3 +22,5 @@ if __name__ == '__main__':
         uni_pad.run(rpi_reference)
     elif PAD_TYPE == 'auto':
         automat.run(rpi_reference)
+    elif PAD_TYPE =='pGame':
+        PyGame.run(rpi_reference)
