@@ -4,6 +4,19 @@ from xbox360controller import Xbox360Controller
 import Pyro4
 from threading import Thread
 
+def read_pid_vals():
+    raw = input("Enter pid vals: kp, ki, kd\ne.g.'1.0 4.5 3.5'\n")
+    lst = raw.split(" ")
+    pid_vals = {"kd":0.0, "kp":0.0, "ki":0.0}
+    try:
+        pid_vals['kp'] = float(lst[0])
+        pid_vals['ki'] = float(lst[1])
+        pid_vals['kd'] = float(lst[2])
+        print("set" + str(pid_vals))
+    except Exception as e:
+        print(e)
+
+    return pid_vals
 
 class X360controler:
     numberOfEngines = 0
@@ -67,6 +80,10 @@ class X360controler:
         #                        'Pressedbutton_y':self.RPI.pid_hold_depth}
 
         #buttonReactions= defaultdict(lambda: None,{'a':'b'})
+
+        # FOR PID
+        self.pid_vals = {"kd":0.0, "kp":0.0, "ki":0.0}
+        #END PID
         
     def sign(self, val):
         if val != 0:
@@ -88,6 +105,9 @@ class X360controler:
         print('A')
         #if self.buttonReactions['PressedButton_a'] != None:
         #    self.buttonReactions['PressedButton_a']()
+        self.RPI.pid_set_params(self.pid_vals['kp'],
+                                self.pid_vals['ki'],
+                                self.pid_vals['kd'])
 
     def _a(self):
         # button_a
@@ -180,8 +200,8 @@ class X360controler:
         self.buttons['LS'] = True
         self.switches['LS'] = not self.switches['LS']
         print('LS')
-        self.cur_mode = not self.cur_mode
-        print('Mov mode: {}'.format(self.cur_mode))
+        #self.cur_mode = not self.cur_mode
+        #print('Mov mode: {}'.format(self.cur_mode))
 
     def _ls(self):
         # button_thumb_l
@@ -193,8 +213,10 @@ class X360controler:
         self.buttons['RS'] = True
         self.switches['RS'] = not self.switches['RS']
         print('RS')
-        self.cur_precision = not self.cur_precision
-        print('Precision mode: {}'.format(self.cur_precision))
+        #self.cur_precision = not self.cur_precision
+        #print('Precision mode: {}'.format(self.cur_precision))
+        inp = input()
+        print(inp)
 
     def _rs(self):
         # button_thumb_r
@@ -206,8 +228,6 @@ class X360controler:
         self.buttons['back'] = True
         self.switches['back'] = not self.switches['back']
         print('back')
-        if self.buttonReactions['Pressedbutton_back'] != None:
-            self.buttonReactions['Pressedbutton_back']()
 
     def _back(self):
         # button_select
@@ -223,6 +243,8 @@ class X360controler:
         print('start')
         if self.buttonReactions['PressedButton_start'] != None:
             self.buttonReactions['PressedButton_start']()
+
+        self.pid_vals=read_pid_vals()
 
     def _start(self):
         # button_start
@@ -386,7 +408,7 @@ class X360controler:
                 counter+=1
                 if counter==20:
                     counter=0
-                    print(self.engines)
+                    #print(self.engines)
 
                 for e in self.engines:
                     if e>50:
@@ -404,8 +426,22 @@ class X360controler:
 
 if __name__ == '__main__':
     class VirtualRpi:
-        def movements(self, front, right, up, yaw, pitch, roll):
-            print(str(front)+" "+str(right)+" "+str(up)+" "+str(yaw)+" "+str(pitch)+" "+str(roll))
+        def set_engine_driver_values(self, front, right, up, yaw, pitch, roll):
+            pass
+            #print(str(front)+" "+str(right)+" "+str(up)+" "+str(yaw)+" "+str(pitch)+" "+str(roll))
+
+        def pid_turn_on(self):
+            print("PID turn on")
+
+        def pid_turn_off(self):
+            print("PID turn off")
+
+        def pid_hold_depth(self):
+            print("PID hold depth")
+
+        def pid_set_params(self, kp, ki, kd):
+            print("pid_set_params: kp: "+str(kp)+" ki: "+str(ki)+" kd: "+str(kd))
+
     VIRTUAL_RPI = VirtualRpi()
     pad = X360controler(VIRTUAL_RPI)
     pad.Start()
