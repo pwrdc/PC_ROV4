@@ -4,7 +4,6 @@ from pynput.keyboard import Key, Listener
 import Pyro4
 
 
-
 class KeybordControler:
     numberOfEngines = 0
     numberOfValues = 4
@@ -12,6 +11,8 @@ class KeybordControler:
 
     swiatla = 0
     obslugaDanych = None
+
+    speed = 0
 
     up =     'w'
     down =   's'
@@ -26,14 +27,12 @@ class KeybordControler:
     goDown = 'c'
 
 
-    isUp = False
-    isDown = False
-    isLeft = False
-    isRight = False
-    isRotateR = False
-    isRotateL = False
-    isGoUP = False
-    isGoDown = False
+
+
+    OsX = 0
+    OsY = 0
+    OsZ = 0
+    rotate = 0
 
     def __init__(self, rpi_reference):
         self.RPI = rpi_reference
@@ -46,37 +45,39 @@ class KeybordControler:
 
         try:
             if key.char is self.up:
-                self.isUp = True
-                print("W = ", self.isUp)
+                self.OsY = 1
+                print("OsY = ", self.OsY)
 
 
             if key.char is 'a':
-                self.isLeft = True
-                print("A = ", self.isLeft)
+                self.OsX = 1
+                print("OsX = ", self.OsX)
 
             if key.char is 's':
-                self.isDown = True
-                print("S = ", self.isDown)
+                self.OsY = -1
+                print("OsY = ", self.OsY)
 
             if key.char is 'd':
-                self.isRight = True
-                print("D = ", self.isRight)
+                self.OsX =-1
+                print("OsX = ", self.OsX)
 
             if key.char is 'q':
-                self.isRotateR = True
-                print("Q = ",  self.isRotateR)
+                self.rotate = 1
+                print("rotate = ",  self.rotate)
 
             if key.char is 'e':
-                self.isRotateL = True
-                print("R = ", self.isRotateL)
+                self.rotate = -1
+                print("rotate = ", self.rotate)
 
             if key.char is 'r':
-                self.isGoUP = True
-                print("R = ", self.isGoUP)
+                self.OsZ = 1
+                print("OsZ = ", self.OsZ)
 
             if key.char is 'c':
-                self.isGoDown = True
-                print("C = ", self.isGoDown)
+                self.OsZ = -1
+                print("OsZ = ", self.OsZ)
+
+
         except:
              return 0
 
@@ -89,36 +90,38 @@ class KeybordControler:
 
         try:
             if key.char is 'w':
-                self.isUp = False
-                print("W = ", self.isUp)
+                self.OsY = 0
+                print("OsY = ", self.OsY)
 
             if key.char is 'a':
-                self.isLeft = False
-                print("A = ", self.isLeft)
+                self.OsX = 0
+                print("OsX = ", self.OsX)
 
             if key.char is 's':
-                self.isDown = False
-                print("S = ", self.isDown)
+                self.OsY = 0
+                print("OsY = ", self.OsY)
 
             if key.char is 'd':
-                self.isRight = False
-                print("D = ", self.isRight)
+                self.OsX = 0
+                print("OsX = ", self.OsX)
 
             if key.char is 'q':
-                self.isRotateR = False
-                print("Q = ", self.isRotateR)
+                self.rotate = 0
+                print("rotate = ", self.rotate)
 
             if key.char is 'e':
-                self.isRotateL = False
-                print("R = ", self.isRotateL)
+                self.rotate = 0
+                print("rotate = ", self.rotate)
 
             if key.char is 'r':
-                self.isGoUP = False
-                print("R = ", self.isGoUP)
+                self.OsZ = 0
+                print("OsZ = ", self.OsZ)
 
             if key.char is 'c':
-                self.isGoDown = False
-                print("C = ", self.isGoDown)
+                self.OsZ = 0
+                print("OsZ = ", self.OsZ)
+
+
         except:
             return 0
 
@@ -128,13 +131,11 @@ class KeybordControler:
     def start(self):
         with Listener(on_press=self.on_press, on_release=self.on_release) as listener:
             listener.join()
-
         try:
             self.RPI.set_engine_driver_values(self.engines[0] / 100, self.engines[1] / 100, self.engines[2] / 100,
-                                          self.engines[3] / 100, 0, 0)
+                                              self.engines[3] / 100, 0, 0)
         except Exception:
             pass
-
 
 
 
