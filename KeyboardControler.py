@@ -129,11 +129,11 @@ class KeybordControler:
         with Listener(on_press=self.on_press, on_release=self.on_release) as listener:
             listener.join()
 
-    try:
-        self.RPI.set_engine_driver_values(self.engines[0] / 100, self.engines[1] / 100, self.engines[2] / 100,
+        try:
+            self.RPI.set_engine_driver_values(self.engines[0] / 100, self.engines[1] / 100, self.engines[2] / 100,
                                           self.engines[3] / 100, 0, 0)
-    except Exception:
-        pass
+        except Exception:
+            pass
 
 
 
