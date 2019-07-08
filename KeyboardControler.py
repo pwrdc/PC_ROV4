@@ -20,7 +20,7 @@ class KeybordControler:
     right =  'd'
 
     rotateR ='q'
-    rotateL ='l'
+    rotateL ='e'
 
     goUp =   'r'
 
@@ -49,31 +49,31 @@ class KeybordControler:
                 print("OsY = ", self.OsY)
 
 
-            if key.char is 'a':
+            if key.char is self.left:
                 self.OsX = 1
                 print("OsX = ", self.OsX)
 
-            if key.char is 's':
+            if key.char is self.down:
                 self.OsY = -1
                 print("OsY = ", self.OsY)
 
-            if key.char is 'd':
+            if key.char is self.right:
                 self.OsX =-1
                 print("OsX = ", self.OsX)
 
-            if key.char is 'q':
+            if key.char is self.rotateR:
                 self.rotate = 1
                 print("rotate = ",  self.rotate)
 
-            if key.char is 'e':
+            if key.char is self.rotateL:
                 self.rotate = -1
                 print("rotate = ", self.rotate)
 
-            if key.char is 'r':
+            if key.char is self.goUp:
                 self.OsZ = 1
                 print("OsZ = ", self.OsZ)
 
-            if key.char is 'c':
+            if key.char is self.goDown:
                 self.OsZ = -1
                 print("OsZ = ", self.OsZ)
 
@@ -89,35 +89,35 @@ class KeybordControler:
     def on_release(self, key):
 
         try:
-            if key.char is 'w':
+            if key.char is self.up:
                 self.OsY = 0
                 print("OsY = ", self.OsY)
 
-            if key.char is 'a':
+            if key.char is self.left:
                 self.OsX = 0
                 print("OsX = ", self.OsX)
 
-            if key.char is 's':
+            if key.char is self.down:
                 self.OsY = 0
                 print("OsY = ", self.OsY)
 
-            if key.char is 'd':
+            if key.char is self.right:
                 self.OsX = 0
                 print("OsX = ", self.OsX)
 
-            if key.char is 'q':
+            if key.char is self.rotateR:
                 self.rotate = 0
                 print("rotate = ", self.rotate)
 
-            if key.char is 'e':
+            if key.char is self.rotateL:
                 self.rotate = 0
                 print("rotate = ", self.rotate)
 
-            if key.char is 'r':
+            if key.char is self.goUp:
                 self.OsZ = 0
                 print("OsZ = ", self.OsZ)
 
-            if key.char is 'c':
+            if key.char is self.goDown:
                 self.OsZ = 0
                 print("OsZ = ", self.OsZ)
 
