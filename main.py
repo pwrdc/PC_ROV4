@@ -1,9 +1,10 @@
 import Pyro4
 from x360pad import X360controler
+from KeyboardControler import KeybordControler
 import uni_pad, automat
 
 
-PAD_TYPE = 'x360' # 'x360' or 'uni'
+PAD_TYPE = 'x360' # 'x360' or 'uni'  or 'keyboard'
 
 
 if __name__ == '__main__':
@@ -21,3 +22,6 @@ if __name__ == '__main__':
         uni_pad.run(rpi_reference)
     elif PAD_TYPE == 'auto':
         automat.run(rpi_reference)
+    elif PAD_TYPE == 'keyboard':
+        keyboard = KeybordControler(rpi_reference)
+        keyboard.Start()
