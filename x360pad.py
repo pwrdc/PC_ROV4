@@ -4,6 +4,63 @@ from xbox360controller import Xbox360Controller
 import Pyro4
 from threading import Thread
 
+### gui prototype
+import tkinter as tk
+
+class Display(Thread):
+    def __init__(self):
+        self.kp = 0.5
+        self.ki= 0.000145
+        self.kd = 1000
+        self.root = tk.Tk()
+        self.root.title("pid controll")
+
+        self.slide1 = tk.Scale(self.root, from_=0, to=200, length=500,
+                            command=self.get_kp)
+        self.slide1.pack( side = "left")
+        self.slide1.set(50)
+
+        self.slide2 = tk.Scale(self.root, from_=0, to=2000, length=500,
+                            command=self.get_kd)
+        self.slide2.pack( side = "left")
+        self.slide2.set(1465)
+
+        self.slide3 = tk.Scale(self.root, from_=0, to=2000, length=500,
+                            command=self.get_ki)
+        self.slide3.pack( side = "left")
+        self.slide3.set(1000)
+
+    def get_kp(self, event):
+        print("kp= " + str(self.slide1.get()/100))
+        self.kp = self.slide1.get()/100
+        
+
+    
+    def get_ki(self, event):
+        print("ki= " + str(self.slide3.get()/10000))
+        self.ki = self.slide3.get()/10000
+    
+    def get_kd(self, event):
+        print("kd= " + str(self.slide2.get()))
+        self.kd = self.slide2.get()
+
+    def run(self):
+        print("small gui started")
+        self.root.mainloop()
+
+    def read_vals(self):
+        pid_vals = {"kd":0.0, "kp":0.0, "ki":0.0}
+        try:
+            pid_vals['kp'] = float(self.kp)
+            pid_vals['ki'] = float(self.ki)
+            pid_vals['kd'] = float(self.kd)
+            print("set" + str(pid_vals))
+        except Exception as e:
+            print(e)
+
+        return pid_vals
+### gui prototype
+
 def read_pid_vals():
     raw = input("Enter pid vals: kp, ki, kd\ne.g.'1.0 4.5 3.5'\n")
     lst = raw.split(" ")
@@ -72,6 +129,12 @@ class X360controler:
     """
 
     def __init__(self, rpi_reference):
+        
+        ### gui prototype
+        self.gui=Display()
+        print('init')
+        ### gui prototype
+
         self.RPI = rpi_reference
 
         self.buttonReactions = defaultdict(lambda: None, {'a':'b'})
@@ -243,8 +306,10 @@ class X360controler:
         print('start')
         if self.buttonReactions['PressedButton_start'] != None:
             self.buttonReactions['PressedButton_start']()
-
-        self.pid_vals=read_pid_vals()
+        ### gui prototype
+        # self.pid_vals=read_pid_vals()
+        self.pid_vals = self.gui.read_vals()
+        ### gui prototype 
 
     def _start(self):
         # button_start
@@ -428,7 +493,7 @@ if __name__ == '__main__':
     class VirtualRpi:
         def set_engine_driver_values(self, front, right, up, yaw, pitch, roll):
             pass
-            #print(str(front)+" "+str(right)+" "+str(up)+" "+str(yaw)+" "+str(pitch)+" "+str(roll))
+            print(str(front)+" "+str(right)+" "+str(up)+" "+str(yaw)+" "+str(pitch)+" "+str(roll))
 
         def pid_turn_on(self):
             print("PID turn on")
@@ -442,6 +507,11 @@ if __name__ == '__main__':
         def pid_set_params(self, kp, ki, kd):
             print("pid_set_params: kp: "+str(kp)+" ki: "+str(ki)+" kd: "+str(kd))
 
+
+
     VIRTUAL_RPI = VirtualRpi()
     pad = X360controler(VIRTUAL_RPI)
-    pad.Start()
+    thread = Thread(target=pad.Start)
+    thread.start()
+    pad.gui.run()
+    #pad.Start()

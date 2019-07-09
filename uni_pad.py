@@ -94,7 +94,7 @@ def run(rpi_class_reference):
 							
 				
 
-        rpi_class_reference.movements(front, right, up,yaw,roll,pitch)
+        rpi_class_reference.set_engine_driver_values(front, right, up,yaw,roll,pitch)
         #if yaw_counter<=0:
         #    yaw=0
         '''

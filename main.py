@@ -1,10 +1,11 @@
 import Pyro4
+from threading import Thread
 from x360pad import X360controler
-from KeyboardControler import KeybordControler
-import uni_pad, automat
+#from KeyboardControler import KeybordControler
+#import uni_pad, automat
 
 
-PAD_TYPE = 'x360' # 'x360' or 'uni'  or 'keyboard'
+PAD_TYPE = 'x360pid' # 'x360' or 'x360pid' or 'uni'  or 'keyboard'
 
 
 if __name__ == '__main__':
@@ -18,6 +19,11 @@ if __name__ == '__main__':
     if PAD_TYPE == 'x360':
         pad = X360controler(rpi_reference)
         pad.Start()
+    elif PAD_TYPE == 'x360pid':
+        pad = X360controler(rpi_reference)
+        thread = Thread(target=pad.Start)
+        thread.start()
+        pad.gui.run()
     elif PAD_TYPE == 'uni':
         uni_pad.run(rpi_reference)
     elif PAD_TYPE == 'auto':
