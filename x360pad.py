@@ -15,12 +15,12 @@ class Display(Thread):
         self.root = tk.Tk()
         self.root.title("pid controll")
 
-        self.slide1 = tk.Scale(self.root, from_=0, to=200, length=500,
+        self.slide1 = tk.Scale(self.root, from_=0, to=500, length=500,
                             command=self.get_kp)
         self.slide1.pack( side = "left")
         self.slide1.set(50)
 
-        self.slide2 = tk.Scale(self.root, from_=0, to=2000, length=500,
+        self.slide2 = tk.Scale(self.root, from_=0, to=200, length=500,
                             command=self.get_kd)
         self.slide2.pack( side = "left")
         self.slide2.set(1465)
@@ -41,8 +41,8 @@ class Display(Thread):
         self.ki = self.slide3.get()/10000
     
     def get_kd(self, event):
-        print("kd= " + str(self.slide2.get()))
-        self.kd = self.slide2.get()
+        print("kd= " + str(self.slide2.get()/100))
+        self.kd = self.slide2.get()/100
 
     def run(self):
         print("small gui started")
