@@ -7,6 +7,9 @@ from threading import Thread
 ### gui prototype
 import tkinter as tk
 
+### gui
+from gui import GUI
+
 class Display(Thread):
     def __init__(self):
         self.kp = 0.5
@@ -131,7 +134,7 @@ class X360controler:
     def __init__(self, rpi_reference):
         
         ### gui prototype
-        self.gui=Display()
+        self.gui = GUI(rpi_reference)
         print('init')
         ### gui prototype
 
@@ -168,9 +171,10 @@ class X360controler:
         print('A')
         #if self.buttonReactions['PressedButton_a'] != None:
         #    self.buttonReactions['PressedButton_a']()
-        self.RPI.pid_set_params(self.pid_vals['kp'],
-                                self.pid_vals['ki'],
-                                self.pid_vals['kd'])
+        #self.RPI.pid_set_params(self.pid_vals['kp'],
+        #                        self.pid_vals['ki'],
+        #                        self.pid_vals['kd'])
+        self.RPI.pid_hold_yaw()
 
     def _a(self):
         # button_a
@@ -185,7 +189,7 @@ class X360controler:
         self.switches['B'] = not self.switches['B']
         print('B')
 
-        self._run_in_thread(self.RPI.pid_turn_off)
+        self._run_in_thread(self.RPI.pid_depth_turn_off)
         print("PID turn off")
 
         #if self.buttonReactions['PressedButton_b'] != None:
@@ -204,7 +208,7 @@ class X360controler:
         self.switches['X'] = not self.switches['X']
         print('X')
 
-        self._run_in_thread(self.RPI.pid_turn_on)
+        self._run_in_thread(self.RPI.pid_depth_turn_on)
         print("PID turn on")
 
         #if self.buttonReactions['PressedButton_x'] != None:
@@ -291,6 +295,7 @@ class X360controler:
         self.buttons['back'] = True
         self.switches['back'] = not self.switches['back']
         print('back')
+        self.RPI.pid_yaw_turn_off()
 
     def _back(self):
         # button_select
@@ -308,8 +313,9 @@ class X360controler:
             self.buttonReactions['PressedButton_start']()
         ### gui prototype
         # self.pid_vals=read_pid_vals()
-        self.pid_vals = self.gui.read_vals()
+        #self.pid_vals = self.gui.read_vals()
         ### gui prototype 
+        self.RPI.pid_yaw_turn_on()
 
     def _start(self):
         # button_start
@@ -481,7 +487,7 @@ class X360controler:
                     if e<50:
                         e =-50
                 try:
-                    self.RPI.set_engine_driver_values(self.engines[0]/100, self.engines[1]/100, self.engines[2]/100,self.engines[3]/100, 0, 0)
+                    self.RPI.set_engine_driver_values(self.engines[0]/100, self.engines[1]/100, self.engines[2]/100,0, 0, self.engines[3]/100)
                 except Exception:
                     pass
 
