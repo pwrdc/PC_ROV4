@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 
 
-from components import JsonManager, Connection, XAVIER_PATH, SELF_PATH
+from components import JsonManager, Connection, SELF_PATH
 from frames import LoginPanel, ControlPanel
 from styles import style_config
 
@@ -76,7 +76,7 @@ class Application(tk.Tk):
         :return:
         """
         self.connection.load_json()
-        self.json_manager = JsonManager(XAVIER_PATH)
+        self.json_manager = JsonManager(SELF_PATH)
         success = self.json_manager.open_json()
         return success
 
