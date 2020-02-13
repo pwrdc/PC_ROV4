@@ -3,7 +3,7 @@ import tkinter.messagebox
 
 
 # path to json file on Xavier
-XAVIER_PATH = 'Xavier_AUV/configs/tasks.json'
+XAVIER_PATH = '/home/nvidia/Xavier_AUV/configs/tasks.json'
 # path to json file on this device
 SELF_PATH = 'temp.json'
 
