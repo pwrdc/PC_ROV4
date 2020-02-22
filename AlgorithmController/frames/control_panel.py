@@ -151,6 +151,7 @@ class ControlPanel(tk.Frame):
         for i in range(len(self.values)):
             self.stones[i].set_value(self.values[i].get())
         self.controller.save_stones(self.stones)
+        self.controller.save_json()
 
     def use_json(self) -> None:
         """
