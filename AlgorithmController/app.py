@@ -94,3 +94,7 @@ class Application(tk.Tk):
         :return:
         """
         self.json_manager.save_json(stones)
+       
+    def save_json():
+        self.connection.send_json()
+
