@@ -95,6 +95,6 @@ class Application(tk.Tk):
         """
         self.json_manager.save_json(stones)
        
-    def save_json():
+    def save_json(self):
         self.connection.send_json()
 
