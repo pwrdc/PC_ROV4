@@ -79,6 +79,8 @@ def read_pid_vals():
     return pid_vals
 
 class X360controler:
+    yaw_change = 5.0
+    depth_change = 0.1
     numberOfEngines = 0
     numberOfValues = 4
     run = True
@@ -121,7 +123,9 @@ class X360controler:
                 'DD': False,
                 'DL': False,
                 'DR': False}
-
+    PID_DEPTH_0N = False
+    PID_YAW_ON = False
+    EXPONENTIAL_MODE_ON = True
     """ 
     buttonsReactions: 'Releasedbutton_a','Releasedbutton_b','Releasedbutton_x','Releasedbutton_y','Releasedbutton_trigger_l','Releasedbutton_trigger_r': self._rb,
     ,'Releasedbutton_thumb_l','Releasedbutton_thumb_r','Releasedbutton_select','Releasedbutton_start': self._start,'Releasedbutton_mode',
@@ -150,16 +154,10 @@ class X360controler:
         # FOR PID
         self.pid_vals = {"kd":0.0, "kp":0.0, "ki":0.0}
         #END PID
-        
-    def sign(self, val):
-        if val != 0:
-            return val / abs(val)
-        else:
-            return 0
 
     def adjust_deadzone(self, value, dzone):
         if abs(value) > dzone:
-            return (value - self.sign(value) * dzone) / (1 - dzone)
+            return (value - sign(value) * dzone) / (1 - dzone)
         else:
             return 0
 
@@ -208,9 +206,15 @@ class X360controler:
         self.switches['X'] = not self.switches['X']
         print('X')
 
-        self._run_in_thread(self.RPI.pid_depth_turn_on)
-        print("PID turn on")
-
+        if not self.PID_DEPTH_0N:
+            self._run_in_thread(self.RPI.pid_depth_turn_on)
+            self._run_in_thread(self.RPI.pid_hold_depth)
+            self.PID_DEPTH_0N = True
+            print("PID depth turn on")
+        else:
+            self._run_in_thread(self.RPI.pid_depth_turn_off)
+            self.PID_DEPTH_0N = False
+            print("PID depth turn off")
         #if self.buttonReactions['PressedButton_x'] != None:
         #    self.buttonReactions['PressedButton_x']()
 
@@ -227,8 +231,15 @@ class X360controler:
         self.switches['Y'] = not self.switches['Y']
         print('Y')
 
-        self._run_in_thread(self.RPI.pid_hold_depth)
-        print("PID hold depth")
+        if not self.PID_YAW_0N:
+            self._run_in_thread(self.RPI.pid_yaw_turn_on)
+            self._run_in_thread(self.RPI.pid_hold_yaw)
+            self.PID_YAW_0N = True
+            print("PID yaw turn on")
+        else:
+            self._run_in_thread(self.RPI.pid_yaw_turn_off)
+            self.PID_YAW_0N = False
+            print("PID yaw turn off")
 
         #if self.buttonReactions['PressedButton_y'] != None:
         #    self.buttonReactions['PressedButton_y']()
@@ -315,7 +326,12 @@ class X360controler:
         # self.pid_vals=read_pid_vals()
         #self.pid_vals = self.gui.read_vals()
         ### gui prototype 
-        self.RPI.pid_yaw_turn_on()
+        if self.EXPONENTIAL_MODE_ON:
+            self.EXPONENTIAL_MODE_ON = False
+            print("linear mode on")
+        else:
+            self.EXPONENTIAL_MODE_ON = True
+            print("exponential mode on")
 
     def _start(self):
         # button_start
@@ -356,10 +372,16 @@ class X360controler:
             self.buttons['DR'] = True
             self.buttons['DL'] = False
             self.switches['DR'] = not self.switches['DR']
+            value = self.RPI.get_yaw() + self.yaw_change
+            self._run_in_thread(self.RPI.pid_set_yaw(value))
+            print("PID yaw set to ", value)
         elif axis.x == -1:
             self.buttons['DL'] = True
             self.buttons['DR'] = False
             self.switches['DL'] = not self.switches['DL']
+            value = self.RPI.get_yaw() - self.yaw_change
+            self._run_in_thread(self.RPI.pid_set_yaw(value))
+            print("PID yaw set to ", value)
         else:
             self.buttons['DR'] = False
             self.buttons['DL'] = False
@@ -367,10 +389,16 @@ class X360controler:
             self.buttons['DU'] = True
             self.buttons['DD'] = False
             self.switches['DU'] = not self.switches['DU']
+            value = self.RPI.get_depth() + self.depth_change
+            self._run_in_thread(self.RPI.pid_set_depth(value))
+            print("PID depth set to ", value)
         elif axis.y == -1:
             self.buttons['DD'] = True
             self.buttons['DU'] = False
             self.switches['DD'] = not self.switches['DD']
+            value = self.RPI.get_depth() - self.depth_change
+            self._run_in_thread(self.RPI.pid_set_depth(value))
+            print("PID depth set to ", value)
         else:
             self.buttons['DD'] = False
             self.buttons['DU'] = False
@@ -421,10 +449,17 @@ class X360controler:
 
     # STEERING FUNCTIONS
     def steering(self):
-        x_vel = 100 * (self.right_trigger - self.left_trigger)
+        x_vel = 100 * self.right_stick[1]
         y_vel = 100 * self.right_stick[0]
-        z_vel = 100 * self.right_stick[1]
+        z_vel = 100 * (self.right_trigger - self.left_trigger)
         yaw_vel = 100 * self.left_stick[0]
+
+        if self.EXPONENTIAL_MODE_ON:
+            x_vel = lin2exp(x_vel)
+            y_vel = lin2exp(y_vel)
+            z_vel = lin2exp(z_vel)
+            yaw_vel = lin2exp(yaw_vel)
+
         self.engines[0] = int(x_vel)
         self.engines[1] = int(y_vel)
         self.engines[2] = int(z_vel)
@@ -494,6 +529,17 @@ class X360controler:
     def _run_in_thread(self, func):
         thread = Thread(target=func)
         thread.start()
+
+
+def sign(val):
+    if val != 0:
+        return val / abs(val)
+    else:
+        return 0
+
+
+def lin2exp(val):
+    return sign(val)*(1.0472**abs(val) - 1)
 
 if __name__ == '__main__':
     class VirtualRpi:
