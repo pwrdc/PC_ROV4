@@ -467,14 +467,15 @@ class X360controler:
         yaw_vel = 100 * self.left_stick[0]
 
         # modifying steering values from linear to exponential
-        if self.EXPONENTIAL_X_ON:
-            x_vel = lin2exp(x_vel, self.EXPONENTIAL_X_PAR)
-        if self.EXPONENTIAL_Y_ON:
-            y_vel = lin2exp(y_vel, self.EXPONENTIAL_Y_PAR)
-        if self.EXPONENTIAL_Z_ON:
-            z_vel = lin2exp(z_vel, self.EXPONENTIAL_Z_PAR)
-        if self.EXPONENTIAL_YAW_ON:
-            yaw_vel = lin2exp(yaw_vel, self.EXPONENTIAL_YAW_PAR)
+        if self.EXPONENTIAL_MODE_ON:
+            if self.EXPONENTIAL_X_ON:
+                x_vel = lin2exp(x_vel, self.EXPONENTIAL_X_PAR)
+            if self.EXPONENTIAL_Y_ON:
+                y_vel = lin2exp(y_vel, self.EXPONENTIAL_Y_PAR)
+            if self.EXPONENTIAL_Z_ON:
+                z_vel = lin2exp(z_vel, self.EXPONENTIAL_Z_PAR)
+            if self.EXPONENTIAL_YAW_ON:
+                yaw_vel = lin2exp(yaw_vel, self.EXPONENTIAL_YAW_PAR)
 
         self.engines[0] = int(x_vel)
         self.engines[1] = int(y_vel)
