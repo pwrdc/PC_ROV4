@@ -538,8 +538,17 @@ def sign(val):
         return 0
 
 
-def lin2exp(val):
-    return sign(val)*(1.0472**abs(val) - 1)
+def lin2exp(val, c=1):
+    """
+    transforms value of linear function y = x [-100, 100] to it's exponential equivalent (modified by a linear part)
+    :param val: input value
+    :param c: function coefficient - larger makes function steeper;
+    c=1 - pure exponential function - see steering_function.png
+    :return: transformed value in range [-100, 100]
+    """
+    a = 101**(1/100)
+    d = 100 / (101**c - 1)
+    return sign(val) * (a**(c*abs(val)) - 1) * d
 
 if __name__ == '__main__':
     class VirtualRpi:
