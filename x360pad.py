@@ -79,6 +79,18 @@ def read_pid_vals():
     return pid_vals
 
 class X360controler:
+    EXPONENTIAL_X_ON = True  # if True x_vel function is exponential, else linear
+    EXPONENTIAL_X_PAR = 1  # x_vel exponential function steepness parameter
+
+    EXPONENTIAL_Y_ON = True
+    EXPONENTIAL_Y_PAR = 1
+
+    EXPONENTIAL_Z_ON = True
+    EXPONENTIAL_Z_PAR = 1
+
+    EXPONENTIAL_YAW_ON = True
+    EXPONENTIAL_YAW_PAR = 1
+
     yaw_change = 5
     depth_change = 0.1
     numberOfEngines = 0
@@ -454,11 +466,15 @@ class X360controler:
         z_vel = 100 * (self.right_trigger - self.left_trigger)
         yaw_vel = 100 * self.left_stick[0]
 
-        if self.EXPONENTIAL_MODE_ON:
-            x_vel = lin2exp(x_vel)
-            y_vel = lin2exp(y_vel)
-            z_vel = lin2exp(z_vel)
-            yaw_vel = lin2exp(yaw_vel)
+        # modifying steering values from linear to exponential
+        if self.EXPONENTIAL_X_ON:
+            x_vel = lin2exp(x_vel, self.EXPONENTIAL_X_PAR)
+        if self.EXPONENTIAL_Y_ON:
+            y_vel = lin2exp(y_vel, self.EXPONENTIAL_Y_PAR)
+        if self.EXPONENTIAL_Z_ON:
+            z_vel = lin2exp(z_vel, self.EXPONENTIAL_Z_PAR)
+        if self.EXPONENTIAL_YAW_ON:
+            yaw_vel = lin2exp(yaw_vel, self.EXPONENTIAL_YAW_PAR)
 
         self.engines[0] = int(x_vel)
         self.engines[1] = int(y_vel)
@@ -540,14 +556,16 @@ def sign(val):
 
 def lin2exp(val, c=1):
     """
-    transforms value of linear function y = x [-100, 100] to it's exponential equivalent (modified by a linear part)
+    transforms value of linear function y = x [-100, 100] to it's (almost) exponential equivalent
+    (modified by a linear part)
     :param val: input value
     :param c: function coefficient - larger makes function steeper;
     c=1 - pure exponential function - see steering_function.png
+    DON'T USE 0!
     :return: transformed value in range [-100, 100]
     """
-    a = 101**(1/100)
-    d = 100 / (101**c - 1)
+    a = 101**(1/100)    # exponential function base
+    d = 100 / (101**c - 1)  # linear modifier
     return sign(val) * (a**(c*abs(val)) - 1) * d
 
 if __name__ == '__main__':
