@@ -81,11 +81,6 @@ def read_pid_vals():
 class X360controler:
     VAR_DICT = {'x_par': 1, 'y_par': 1, 'z_par': 1, 'yaw_par': 1}  # exponential functions steepness parameters
 
-    EXPONENTIAL_X_ON = True  # if True x_vel function is exponential, else linear
-    EXPONENTIAL_Y_ON = True
-    EXPONENTIAL_Z_ON = True
-    EXPONENTIAL_YAW_ON = True
-
     yaw_change = 5
     depth_change = 0.1
     numberOfEngines = 0
@@ -325,6 +320,7 @@ class X360controler:
         if self.buttonReactions['Releasedbutton_back'] != None:
             self.buttonReactions['Releasedbutton_back']()
 
+    # press to open parameter modification terminal
     def start(self):
         # button_start
         self.buttons['start'] = True
@@ -335,13 +331,8 @@ class X360controler:
         ### gui prototype
         # self.pid_vals=read_pid_vals()
         #self.pid_vals = self.gui.read_vals()
-        ### gui prototype 
-        if self.EXPONENTIAL_MODE_ON:
-            self.EXPONENTIAL_MODE_ON = False
-            print("linear mode on")
-        else:
-            self.EXPONENTIAL_MODE_ON = True
-            print("exponential mode on")
+        ### gui prototype
+        self.take_input()
 
     def _start(self):
         # button_start
@@ -465,15 +456,10 @@ class X360controler:
         yaw_vel = 100 * self.left_stick[0]
 
         # modifying steering values from linear to exponential
-        if self.EXPONENTIAL_MODE_ON:
-            if self.EXPONENTIAL_X_ON:
-                x_vel = self.lin2exp(x_vel, self.VAR_DICT['x_par'])
-            if self.EXPONENTIAL_Y_ON:
-                y_vel = self.lin2exp(y_vel, self.VAR_DICT['y_par'])
-            if self.EXPONENTIAL_Z_ON:
-                z_vel = self.lin2exp(z_vel, self.VAR_DICT['z_par'])
-            if self.EXPONENTIAL_YAW_ON:
-                yaw_vel = self.lin2exp(yaw_vel, self.VAR_DICT['yaw_par'])
+        x_vel = self.lin2exp(x_vel, self.VAR_DICT['x_par'])
+        y_vel = self.lin2exp(y_vel, self.VAR_DICT['y_par'])
+        z_vel = self.lin2exp(z_vel, self.VAR_DICT['z_par'])
+        yaw_vel = self.lin2exp(yaw_vel, self.VAR_DICT['yaw_par'])
 
         self.engines[0] = int(x_vel)
         self.engines[1] = int(y_vel)
