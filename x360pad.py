@@ -79,17 +79,12 @@ def read_pid_vals():
     return pid_vals
 
 class X360controler:
+    VAR_DICT = {'x_par': 1, 'y_par': 1, 'z_par': 1, 'yaw_par': 1}  # exponential functions steepness parameters
+
     EXPONENTIAL_X_ON = True  # if True x_vel function is exponential, else linear
-    EXPONENTIAL_X_PAR = 1  # x_vel exponential function steepness parameter
-
     EXPONENTIAL_Y_ON = True
-    EXPONENTIAL_Y_PAR = 1
-
     EXPONENTIAL_Z_ON = True
-    EXPONENTIAL_Z_PAR = 1
-
     EXPONENTIAL_YAW_ON = True
-    EXPONENTIAL_YAW_PAR = 1
 
     yaw_change = 5
     depth_change = 0.1
@@ -469,13 +464,13 @@ class X360controler:
         # modifying steering values from linear to exponential
         if self.EXPONENTIAL_MODE_ON:
             if self.EXPONENTIAL_X_ON:
-                x_vel = lin2exp(x_vel, self.EXPONENTIAL_X_PAR)
+                x_vel = lin2exp(x_vel, self.VAR_DICT['x_par'])
             if self.EXPONENTIAL_Y_ON:
-                y_vel = lin2exp(y_vel, self.EXPONENTIAL_Y_PAR)
+                y_vel = lin2exp(y_vel, self.VAR_DICT['y_par'])
             if self.EXPONENTIAL_Z_ON:
-                z_vel = lin2exp(z_vel, self.EXPONENTIAL_Z_PAR)
+                z_vel = lin2exp(z_vel, self.VAR_DICT['z_par'])
             if self.EXPONENTIAL_YAW_ON:
-                yaw_vel = lin2exp(yaw_vel, self.EXPONENTIAL_YAW_PAR)
+                yaw_vel = lin2exp(yaw_vel, self.VAR_DICT['yaw_par'])
 
         self.engines[0] = int(x_vel)
         self.engines[1] = int(y_vel)
@@ -547,6 +542,34 @@ class X360controler:
         thread = Thread(target=func)
         thread.start()
 
+    def take_input(self):
+        """
+        input format: command variable value
+        commands: set
+        variables: x_par, y_par, z_par, yaw_par
+        """
+        input_string = input()
+        input_list = input_string.split(' ')
+        if len(input_list) != 3:
+            return False
+        command_input = input_list[0]
+        var_input = input_list[1]
+        try:
+            val_input = float(input_list[2])
+        except:
+            return False
+        if command_input == 'set':
+            if self.set_value(var_input, val_input):
+                return True
+        return False
+
+    def set_value(self, var, val):
+        try:
+            self.VAR_DICT[var] = val
+            return True
+        except:
+            return False
+
 
 def sign(val):
     if val != 0:
@@ -565,7 +588,7 @@ def lin2exp(val, c=1):
     DON'T USE 0!
     :return: transformed value in range [-100, 100]
     """
-    a = 101**(1/100)    # exponential function base
+    a = 101**(1/100)  # exponential function base
     d = 100 / (101**c - 1)  # linear modifier
     return sign(val) * (a**(c*abs(val)) - 1) * d
 
