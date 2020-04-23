@@ -332,7 +332,8 @@ class X360controler:
         # self.pid_vals=read_pid_vals()
         #self.pid_vals = self.gui.read_vals()
         ### gui prototype
-        self.take_input()
+        if not self.take_input():
+            print("take_input: invalid input.")
 
     def _start(self):
         # button_start
@@ -537,6 +538,7 @@ class X360controler:
         commands: set
         variables: x_par, y_par, z_par, yaw_par
         """
+        print("Input command in format: command variable value")
         input_string = input()
         input_list = input_string.split(' ')
         if len(input_list) != 3:
