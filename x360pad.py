@@ -133,6 +133,9 @@ class X360controler:
     PID_DEPTH_ON = False
     PID_YAW_ON = False
     EXPONENTIAL_MODE_ON = True
+    EXP_FUN_BASE = 101 ** (1 / 100)  # exponential function base
+    EXP_FUN_LINMOD = 0  # linear modifier
+    EXP_FUN_C = 1  # exponential function steepness coefficient
     """ 
     buttonsReactions: 'Releasedbutton_a','Releasedbutton_b','Releasedbutton_x','Releasedbutton_y','Releasedbutton_trigger_l','Releasedbutton_trigger_r': self._rb,
     ,'Releasedbutton_thumb_l','Releasedbutton_thumb_r','Releasedbutton_select','Releasedbutton_start': self._start,'Releasedbutton_mode',
@@ -464,13 +467,13 @@ class X360controler:
         # modifying steering values from linear to exponential
         if self.EXPONENTIAL_MODE_ON:
             if self.EXPONENTIAL_X_ON:
-                x_vel = lin2exp(x_vel, self.VAR_DICT['x_par'])
+                x_vel = self.lin2exp(x_vel, self.VAR_DICT['x_par'])
             if self.EXPONENTIAL_Y_ON:
-                y_vel = lin2exp(y_vel, self.VAR_DICT['y_par'])
+                y_vel = self.lin2exp(y_vel, self.VAR_DICT['y_par'])
             if self.EXPONENTIAL_Z_ON:
-                z_vel = lin2exp(z_vel, self.VAR_DICT['z_par'])
+                z_vel = self.lin2exp(z_vel, self.VAR_DICT['z_par'])
             if self.EXPONENTIAL_YAW_ON:
-                yaw_vel = lin2exp(yaw_vel, self.VAR_DICT['yaw_par'])
+                yaw_vel = self.lin2exp(yaw_vel, self.VAR_DICT['yaw_par'])
 
         self.engines[0] = int(x_vel)
         self.engines[1] = int(y_vel)
@@ -570,6 +573,23 @@ class X360controler:
         except:
             return False
 
+    def lin2exp(self, val, c=1):
+        """
+        transforms value of linear function y = x [-100, 100] to it's (almost) exponential equivalent
+        (modified by a linear part)
+        :param val: input value
+        :param c: function coefficient - larger makes function steeper;
+        c=1 - pure exponential function - see steering_function.png
+        c=0 - linear function (no transformation)
+        :return: transformed value in range [-100, 100]
+        """
+        if c == 0:
+            return val
+
+        if c != self.EXP_FUN_C:  # optimization - linear modifier value computed only when changed
+            self.EXP_FUN_LINMOD = 100 / (101 ** c - 1)  # linear modifier
+        return sign(val) * (self.EXP_FUN_BASE ** (c * abs(val)) - 1) * self.EXP_FUN_LINMOD
+
 
 def sign(val):
     if val != 0:
@@ -577,20 +597,6 @@ def sign(val):
     else:
         return 0
 
-
-def lin2exp(val, c=1):
-    """
-    transforms value of linear function y = x [-100, 100] to it's (almost) exponential equivalent
-    (modified by a linear part)
-    :param val: input value
-    :param c: function coefficient - larger makes function steeper;
-    c=1 - pure exponential function - see steering_function.png
-    DON'T USE 0!
-    :return: transformed value in range [-100, 100]
-    """
-    a = 101**(1/100)  # exponential function base
-    d = 100 / (101**c - 1)  # linear modifier
-    return sign(val) * (a**(c*abs(val)) - 1) * d
 
 if __name__ == '__main__':
     class VirtualRpi:
